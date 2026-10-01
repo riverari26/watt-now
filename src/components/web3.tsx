@@ -92,7 +92,13 @@ function useFee(enabled: boolean) {
   const [fee, setFee] = useState<bigint | null>(null);
   useEffect(() => {
     if (!enabled) return;
-    readSaveFee().then(setFee).catch(() => setFee(null));
+    readSaveFee()
+      .then(setFee)
+      .catch((e) => {
+        setFee(null);
+        // Surface a helpful hint instead of an unhandled "0x" error popup.
+        toast.error(friendlyError(e));
+      });
   }, [enabled]);
   return fee;
 }

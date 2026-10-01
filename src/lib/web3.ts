@@ -5,8 +5,8 @@ export const BOT_CHAIN = defineChain({
   id: 677,
   name: "BOT Chain Mainnet",
   nativeCurrency: { name: "BOT", symbol: "BOT", decimals: 18 },
-  rpcUrls: { default: { http: ["http://rpc.botchain.ai/"] } },
-  blockExplorers: { default: { name: "BOTChain Explorer", url: "https://scan.botchain.ai" } },
+  rpcUrls: { default: { http: ["https://rpc.botchain.ai"] } },
+  blockExplorers: { default: { name: "BOTChain Explorer", url: "https://scan.botchain.ai/" } },
 });
 export const BOT_CHAIN_HEX = "0x2a5";
 export const CONTRACT_ADDRESS = "0x4934e47a285EC8AFb1A56BBB247C8091913F3BEC" as const;
@@ -131,7 +131,7 @@ export async function switchToBotChain() {
             chainId: BOT_CHAIN_HEX,
             chainName: "BOT Chain Mainnet",
             nativeCurrency: { name: "BOT", symbol: "BOT", decimals: 18 },
-            rpcUrls: ["http://rpc.botchain.ai/"],
+            rpcUrls: ["https://rpc.botchain.ai"],
             blockExplorerUrls: [EXPLORER + "/"],
           },
         ],
@@ -150,7 +150,14 @@ function clients() {
 }
 
 export async function readSaveFee(): Promise<bigint> {
-  return clients().pub.readContract({ address: CONTRACT_ADDRESS, abi: WATTNOW_ABI, functionName: "SAVE_FEE" });
+  try {
+    return await clients().pub.readContract({ address: CONTRACT_ADDRESS, abi: WATTNOW_ABI, functionName: "SAVE_FEE" });
+  } catch (e) {
+    throw new Error(
+      "Could not read the SAVE_FEE from the WattNow contract. Please check your wallet network connection (BOT Chain Mainnet, chain ID 677) and try again.",
+      { cause: e },
+    );
+  }
 }
 
 export async function saveScanOnChain(kwh: bigint, account: `0x${string}`) {
